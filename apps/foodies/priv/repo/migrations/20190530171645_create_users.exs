@@ -6,6 +6,7 @@ defmodule Foodies.Repo.Migrations.CreateUsers do
       add :name, :string
       add :username, :string, null: false
       add :role, :string, null: false
+
       timestamps()
     end
 

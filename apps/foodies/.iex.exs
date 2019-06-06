@@ -1,8 +1,9 @@
-# alias Foodies.Vacation.{Place, Booking, Review}
+alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient}
 alias Foodies.Accounts.{User, Credential}
 
 alias Foodies.Repo
-# alias Foodies.Vacation
+alias Foodies.Recipes
 alias Foodies.Accounts
 
-import Ecto.Query
+import Ecto
+import Ecto.{Query, Changeset}
