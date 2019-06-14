@@ -212,15 +212,10 @@ defmodule Foodies.Recipes do
   end
 
   def get_recipe_ingredients(id) do
-    query =
-      from i in Ingredient,
-        join: ri in RecipeIngredient,
-        where: ri.recipe_id == ^id and ri.ingredient_id == i.id,
-        select: {i.name, i.description, ri.quantity}
-
-    # from(u in User, join: c in assoc(u, :credential), where: c.email == ^email)
-    # |> Repo.one()
-    # |> Repo.preload(:credential)
-    Repo.all(query)
+    RecipeIngredient
+    |> join(:inner, [ri], i in assoc(ri, :ingredient))
+    |> select([ri, i], {i.name, i.description, ri.quantity})
+    |> where([ri, i], ri.recipe_id == ^id)
+    |> Repo.all()
   end
 end

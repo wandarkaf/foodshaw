@@ -1,5 +1,6 @@
 defmodule FoodiesWeb.UserSocket do
   use Phoenix.Socket
+  use Absinthe.Phoenix.Socket, schema: FoodiesWeb.Schema.Schema
 
   ## Channels
   # channel "room:*", FoodiesWeb.RoomChannel

@@ -3,10 +3,15 @@ defmodule Foodies.Repo.Migrations.CreateRecipes do
 
   def change do
     create table(:recipes) do
-      add :name, :string
-      add :description, :text
+      add :name, :string, null: false
+      add :description, :text, null: false
+      add :source_url, :string, null: false
+      add :img_cover_url, :string
+      add :spicy, :integer
 
       timestamps()
     end
+
+    create unique_index(:recipes, [:name])
   end
 end
