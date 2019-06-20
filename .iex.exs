@@ -1,4 +1,4 @@
-alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient}
+alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient, Measure}
 alias Foodies.Accounts.{User, Credential}
 
 alias Foodies.Repo

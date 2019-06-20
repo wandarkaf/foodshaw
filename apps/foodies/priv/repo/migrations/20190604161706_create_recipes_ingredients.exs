@@ -5,7 +5,7 @@ defmodule Foodies.Repo.Migrations.CreateRecipesIngredients do
     create table(:recipes_ingredients) do
       add :recipe_id, references(:recipes, on_delete: :delete_all), null: false
       add :ingredient_id, references(:ingredients, on_delete: :delete_all), null: false
-      add :quantity, :float, null: false
+      add :quantity, :decimal, null: false
 
       timestamps()
     end

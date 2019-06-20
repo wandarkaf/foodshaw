@@ -4,6 +4,7 @@ defmodule Foodies.Repo.Migrations.CreateInstructions do
   def change do
     create table(:instructions) do
       add :preparation, :text, null: false
+      add :time, :decimal, default: 0
       add :recipe_id, references(:recipes, on_delete: :delete_all), null: false
 
       timestamps()

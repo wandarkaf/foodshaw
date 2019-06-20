@@ -3,6 +3,6 @@ defmodule FoodiesWeb.Resolvers.Recipes do
   # alias FoodiesWeb.Schema.ChangesetErrors
 
   def recipes(_, args, _) do
-    {:ok, Foodies.Recipes.list_recipes()}
+    {:ok, Foodies.Recipes.list_recipes(args)}
   end
 end

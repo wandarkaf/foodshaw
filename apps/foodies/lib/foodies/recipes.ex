@@ -6,10 +6,10 @@ defmodule Foodies.Recipes do
   import Ecto.Query, warn: false
   alias Foodies.Repo
 
-  alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient}
+  alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient, Measure, Category}
 
   @doc """
-  Returns the list of recipes.
+  Returns the list of measures.
 
   ## Examples
 
@@ -17,8 +17,45 @@ defmodule Foodies.Recipes do
       [%Recipe{}, ...]
 
   """
-  def list_recipes do
-    Repo.all(Recipe)
+  def list_recipes(criteria) do
+    query = from(p in Recipe)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from p in query, limit: ^limit
+
+      {:filter, filters}, query ->
+        filter_with(filters, query)
+
+      {:order, order}, query ->
+        from p in query, order_by: [{^order, :id}]
+    end)
+    |> Repo.all()
+  end
+
+  defp filter_with(filters, query) do
+    Enum.reduce(filters, query, fn
+      {:matching, term}, query ->
+        pattern = "%#{term}%"
+
+        from q in query,
+          where:
+            ilike(q.name, ^pattern) or
+              ilike(q.description, ^pattern)
+
+      {:spicy, count}, query ->
+        from q in query, where: q.spicy >= ^count
+
+      {:servings, count}, query ->
+        from q in query, where: q.servings >= ^count
+
+      {:category, category}, query ->
+        pattern = "%#{category}%"
+
+        from q in query,
+          join: c in Category,
+          where: ilike(c.name, ^pattern) and c.id == q.category_id
+    end)
   end
 
   @doc """
@@ -214,8 +251,62 @@ defmodule Foodies.Recipes do
   def get_recipe_ingredients(id) do
     RecipeIngredient
     |> join(:inner, [ri], i in assoc(ri, :ingredient))
-    |> select([ri, i], {i.name, i.description, ri.quantity})
-    |> where([ri, i], ri.recipe_id == ^id)
+    |> join(:inner, [ri], m in assoc(ri, :measure))
+    |> select([ri, i, m], {i.name, ri.quantity, m.type})
+    |> where([ri, i, m], ri.recipe_id == ^id)
     |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of measures.
+
+  ## Examples
+
+      iex> list_measures()
+      [%Measure{}, ...]
+
+  """
+  def list_measures do
+    Repo.all(Measure)
+  end
+
+  @doc """
+  Gets a single measure.
+
+  Raises `Ecto.NoResultsError` if the measure does not exist.
+
+  ## Examples
+
+      iex> get_measure!(123)
+      %Measure{}
+
+      iex> get_measure!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_measure!(id), do: Repo.get!(Measure, id)
+
+  # Dataloader
+
+  def datasource() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Ingredient, %{limit: limit, scope: :recipe}) do
+    Ingredient
+    # |> where(state: "reserved")
+    # |> order_by(asc: :start_date)
+    |> limit(^limit)
+
+    # get_recipe_ingredients(Ingredient)
+  end
+
+  # def query(Ingredient, %{scope: :user}) do
+  #   Ingredient
+  #   |> order_by(asc: :start_date)
+  # end
+
+  def query(queryable, _) do
+    queryable
   end
 end
