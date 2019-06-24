@@ -18,17 +18,17 @@ defmodule Foodies.Recipes do
 
   """
   def list_recipes(criteria) do
-    query = from(p in Recipe)
+    query = from(r in Recipe)
 
     Enum.reduce(criteria, query, fn
       {:limit, limit}, query ->
-        from p in query, limit: ^limit
+        from r in query, limit: ^limit
 
       {:filter, filters}, query ->
         filter_with(filters, query)
 
       {:order, order}, query ->
-        from p in query, order_by: [{^order, :id}]
+        from r in query, order_by: [{^order, :id}]
     end)
     |> Repo.all()
   end
@@ -42,6 +42,17 @@ defmodule Foodies.Recipes do
           where:
             ilike(q.name, ^pattern) or
               ilike(q.description, ^pattern)
+
+      {:exclude, term}, query ->
+        pattern = "%#{term}%"
+
+      # from q in query,
+      # join: ri in RecipeIngredient,
+      # join: i in Ingredient,
+      # where: not(
+      #     from i in Ingredient,
+      #     where: ilike(i.name, ^pattern) or ilike(i.description, ^pattern)
+      #   )
 
       {:spicy, count}, query ->
         from q in query, where: q.spicy >= ^count
@@ -148,8 +159,20 @@ defmodule Foodies.Recipes do
       [%Ingredient{}, ...]
 
   """
-  def list_ingredients do
-    Repo.all(Ingredient)
+  def list_ingredients(criteria) do
+    query = from(i in Ingredient)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from i in query, limit: ^limit
+
+      {:filter, filters}, query ->
+        filter_with(filters, query)
+
+      {:order, order}, query ->
+        from i in query, order_by: [{^order, :id}]
+    end)
+    |> Repo.all()
   end
 
   @doc """

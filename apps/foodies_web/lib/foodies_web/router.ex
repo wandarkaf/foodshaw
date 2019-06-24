@@ -3,6 +3,7 @@ defmodule FoodiesWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug FoodiesWeb.Plugs.SetCurrentUser
   end
 
   scope "/", FoodiesWeb do
@@ -30,7 +31,8 @@ defmodule FoodiesWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: FoodiesWeb.Schema.Schema,
-      socket: FoodiesWeb.UserSocket,
-      interface: :simple
+      socket: FoodiesWeb.UserSocket
+
+    # interface: :simple
   end
 end

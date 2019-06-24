@@ -5,7 +5,7 @@ defmodule FoodiesWeb.Schema.Schema do
   import_types(Absinthe.Type.Custom)
 
   alias FoodiesWeb.Resolvers
-  # alias FoodiesWeb.Schema.Middleware
+  alias FoodiesWeb.Schema.Middleware
   alias Foodies.{Accounts, Recipes}
 
   query do
@@ -15,6 +15,45 @@ defmodule FoodiesWeb.Schema.Schema do
       arg(:limit, :integer)
       arg(:order, type: :sort_order, default_value: :asc)
       resolve(&Resolvers.Recipes.recipes/3)
+    end
+
+    @desc "Get a recipe by id"
+    field :recipe, :recipe do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Recipes.recipe/3)
+    end
+
+    @desc "Get a list of ingredients"
+    field :ingredients, list_of(:ingredient) do
+      arg(:filter, :ingredient_filter)
+      arg(:limit, :integer)
+      arg(:order, type: :sort_order, default_value: :asc)
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Recipes.ingredients/3)
+    end
+
+    @desc "Get the currently signed-in user"
+    field :me, :user do
+      resolve(&Resolvers.Accounts.me/3)
+    end
+  end
+
+  mutation do
+    @desc "Create a user account"
+    field :signup, :session do
+      arg(:name, non_null(:string))
+      arg(:username, non_null(:string))
+      arg(:email, non_null(:string))
+      arg(:password, non_null(:string))
+      arg(:role, non_null(:string))
+      resolve(&Resolvers.Accounts.signup/3)
+    end
+
+    @desc "Sign in a user"
+    field :signin, :session do
+      arg(:email, non_null(:string))
+      arg(:password, non_null(:string))
+      resolve(&Resolvers.Accounts.signin/3)
     end
   end
 
@@ -82,7 +121,25 @@ defmodule FoodiesWeb.Schema.Schema do
     field(:measure_id, non_null(:id))
     field(:quantity, non_null(:decimal))
     field(:ingredient, non_null(:ingredient), resolve: dataloader(Recipes))
+    field(:recipe, non_null(:recipe), resolve: dataloader(Recipes))
     field(:measure, non_null(:measure), resolve: dataloader(Recipes))
+  end
+
+  object :session do
+    field(:token, non_null(:string))
+    field(:user, non_null(:user))
+  end
+
+  object :credential do
+    field(:email, non_null(:string))
+    # field :password_hash, non_null(:string)
+    field(:role, non_null(:string))
+  end
+
+  object :user do
+    field(:username, non_null(:string))
+    field(:name, non_null(:string))
+    field(:credential, non_null(:credential), resolve: dataloader(Accounts))
   end
 
   #
@@ -94,6 +151,9 @@ defmodule FoodiesWeb.Schema.Schema do
     @desc "Matching a name or description"
     field(:matching, :string)
 
+    @desc "Exclude recipe that contains the keyword in the ingredients"
+    field(:exclude, :string)
+
     @desc "spice level"
     field(:spicy, :integer)
 
@@ -102,6 +162,15 @@ defmodule FoodiesWeb.Schema.Schema do
 
     @desc "category of the recipe"
     field(:category, :string)
+  end
+
+  @desc "Filters for the list of ingredients"
+  input_object :ingredient_filter do
+    @desc "Matching a name or description"
+    field(:matching, :string)
+
+    @desc "Exclude recipes matching a name or description"
+    field(:exclude, :string)
   end
 
   enum :sort_order do
@@ -117,8 +186,7 @@ defmodule FoodiesWeb.Schema.Schema do
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Recipes, Recipes.datasource())
-
-    # |> Dataloader.add_source(Accounts, Accounts.datasource())
+      |> Dataloader.add_source(Accounts, Accounts.datasource())
 
     Map.put(ctx, :loader, loader)
   end
