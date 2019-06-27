@@ -8,6 +8,8 @@ defmodule Foodies.Repo.Migrations.CreateLocations do
       add :lat, :float, null: false
       add :lng, :float, null: false
       add :ratio, :float, null: false
+
+      timestamps()
     end
 
     create unique_index(:locations, [:lat, :lng])

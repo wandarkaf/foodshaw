@@ -1,10 +1,12 @@
 defmodule FoodiesWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :foodies_web
+  use Absinthe.Phoenix.Endpoint
 
   socket "/socket", FoodiesWeb.UserSocket,
     websocket: true,
     longpoll: false
 
+  plug CORSPlug
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest

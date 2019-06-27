@@ -6,10 +6,13 @@ defmodule FoodiesWeb.Application do
   use Application
 
   def start(_type, _args) do
+    import Supervisor.Spec
+
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      FoodiesWeb.Endpoint
+      FoodiesWeb.Endpoint,
+      supervisor(Absinthe.Subscription, [FoodiesWeb.Endpoint])
       # Starts a worker by calling: FoodiesWeb.Worker.start_link(arg)
       # {FoodiesWeb.Worker, arg},
     ]

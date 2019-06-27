@@ -12,7 +12,9 @@
 alias Foodies.Repo
 alias Foodies.Accounts
 # alias Foodies.Recipes
-alias Foodies.Recipes.{Recipe, Ingredient, Measure, RecipeIngredient, Instruction, Category}
+alias Foodies.Recipes.{Recipe, RecipeIngredient, Category, Instruction, Measure}
+alias Foodies.Ingredients.{Ingredient, IngredientLocation, Location}
+alias Foodies.Carts.{Cart, CartIngredient}
 
 # USERS
 
@@ -315,6 +317,50 @@ Enum.map(
   ingredients,
   fn ingredient ->
     changeset = RecipeIngredient.changeset(%RecipeIngredient{}, ingredient)
+    Repo.insert!(changeset)
+  end
+)
+
+# LOCATIONS
+
+Repo.insert!(%Location{
+  name: "evanston",
+  description: "cool place to eat venezuelan food",
+  lat: 42.0448053,
+  lng: -87.7304106,
+  ratio: 1.12312
+})
+
+Repo.insert!(%Location{
+  name: "denver",
+  description: "cool place to hike and farm",
+  lat: 39.7645187,
+  lng: -104.9951973,
+  ratio: 3.2
+})
+
+# CARTS
+
+Repo.insert!(%Cart{
+  name: "Veggies",
+  description: "Don't forget to buy stuff",
+  reset: 0,
+  share: [],
+  user_id: 1
+})
+
+# CART INGREDIENT RELATION
+
+to_shop = [
+  %{cart_id: 1, ingredient_id: 1, checked: true, quantity: 1},
+  %{cart_id: 1, ingredient_id: 2, checked: false, quantity: 4},
+  %{cart_id: 1, ingredient_id: 3, checked: true, quantity: 2}
+]
+
+Enum.map(
+  to_shop,
+  fn ingredient ->
+    changeset = CartIngredient.changeset(%CartIngredient{}, ingredient)
     Repo.insert!(changeset)
   end
 )

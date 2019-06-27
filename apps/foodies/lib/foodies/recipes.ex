@@ -7,6 +7,7 @@ defmodule Foodies.Recipes do
   alias Foodies.Repo
 
   alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient, Measure, Category}
+  alias Foodies.Ingredients.Ingredient
 
   @doc """
   Returns the list of measures.
@@ -43,8 +44,8 @@ defmodule Foodies.Recipes do
             ilike(q.name, ^pattern) or
               ilike(q.description, ^pattern)
 
-      {:exclude, term}, query ->
-        pattern = "%#{term}%"
+      # {:exclude, term}, query ->
+      #   pattern = "%#{term}%"
 
       # from q in query,
       # join: ri in RecipeIngredient,
@@ -150,125 +151,11 @@ defmodule Foodies.Recipes do
     Recipe.changeset(recipe, %{})
   end
 
-  @doc """
-  Returns the list of ingredients.
-
-  ## Examples
-
-      iex> list_ingredients()
-      [%Ingredient{}, ...]
-
-  """
-  def list_ingredients(criteria) do
-    query = from(i in Ingredient)
-
-    Enum.reduce(criteria, query, fn
-      {:limit, limit}, query ->
-        from i in query, limit: ^limit
-
-      {:filter, filters}, query ->
-        filter_with(filters, query)
-
-      {:order, order}, query ->
-        from i in query, order_by: [{^order, :id}]
-    end)
-    |> Repo.all()
-  end
-
-  @doc """
-  Gets a single ingredient.
-
-  Raises `Ecto.NoResultsError` if the Ingredient does not exist.
-
-  ## Examples
-
-      iex> get_ingredient!(123)
-      %Ingredient{}
-
-      iex> get_ingredient!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_ingredient!(id), do: Repo.get!(Ingredient, id)
-
-  @doc """
-  Creates a ingredient.
-
-  ## Examples
-
-      iex> create_ingredient(%{field: value})
-      {:ok, %Ingredient{}}
-
-      iex> create_ingredient(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_ingredient(attrs \\ %{}) do
-    %Ingredient{}
-    |> Ingredient.changeset(attrs)
+  def add_ingredient_to_recipe(attrs) do
+    # %{recipe_id: 2, ingredient_id: 21, measure_id: 3, quantity: 2}
+    %RecipeIngredient{}
+    |> RecipeIngredient.changeset(attrs)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a ingredient.
-
-  ## Examples
-
-      iex> update_ingredient(ingredient, %{field: new_value})
-      {:ok, %Ingredient{}}
-
-      iex> update_ingredient(ingredient, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_ingredient(%Ingredient{} = ingredient, attrs) do
-    ingredient
-    |> Ingredient.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Ingredient.
-
-  ## Examples
-
-      iex> delete_ingredient(ingredient)
-      {:ok, %Ingredient{}}
-
-      iex> delete_ingredient(ingredient)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_ingredient(%Ingredient{} = ingredient) do
-    Repo.delete(ingredient)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking ingredient changes.
-
-  ## Examples
-
-      iex> change_ingredient(ingredient)
-      %Ecto.Changeset{source: %Ingredient{}}
-
-  """
-  def change_ingredient(%Ingredient{} = ingredient) do
-    Ingredient.changeset(ingredient, %{})
-  end
-
-  def upsert_recipe_ingredients(ingredients) do
-    # %{recipe_id: recipe.id, ingredient_id: 2, quantity: 100}
-    Enum.map(
-      ingredients,
-      fn ingredient ->
-        changeset = RecipeIngredient.changeset(%RecipeIngredient{}, ingredient)
-
-        case Repo.insert(changeset) do
-          {:ok, assoc} -> assoc
-          {:error, changeset} -> :error
-        end
-      end
-    )
   end
 
   def get_recipe_ingredients(id) do
