@@ -16,5 +16,6 @@ defmodule Foodies.Recipes.Instruction do
     instruction
     |> cast(attrs, [:preparation, :time, :recipe_id])
     |> validate_required([:preparation])
+    |> assoc_constraint(:recipe)
   end
 end

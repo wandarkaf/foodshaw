@@ -3,7 +3,7 @@ defmodule Foodies.Ingredients.Ingredient do
   import Ecto.Changeset
   alias Foodies.Repo
   alias Foodies.Ingredients.{Location, IngredientLocation}
-  alias Foodies.Recipes.RecipeIngredient
+  alias Foodies.Recipes.{Recipe, RecipeIngredient}
   alias Foodies.Carts.CartIngredient
 
   schema "ingredients" do
@@ -11,6 +11,7 @@ defmodule Foodies.Ingredients.Ingredient do
     field :name, :string
     field :img_cover_url, :string
 
+    # many_to_many :recipes, Recipe, join_through: RecipeIngredient, on_replace: :delete
     has_many :recipes_ingredients, RecipeIngredient
     has_many :carts_ingredients, CartIngredient
 

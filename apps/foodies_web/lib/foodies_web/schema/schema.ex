@@ -28,7 +28,7 @@ defmodule FoodiesWeb.Schema.Schema do
       arg(:filter, :ingredient_filter)
       arg(:limit, :integer)
       arg(:order, type: :sort_order, default_value: :asc)
-      # middleware Middleware.Authenticate
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingredients.ingredients/3)
     end
 
@@ -103,10 +103,15 @@ defmodule FoodiesWeb.Schema.Schema do
       arg(:limit, type: :integer, default_value: 100)
       resolve(dataloader(Recipes, :recipes_ingredients, args: %{scope: :recipe}))
     end
+
+    # field :ingredients, list_of(:ingredient) do
+    #   arg(:limit, type: :integer, default_value: 100)
+    #   resolve(dataloader(Ingredients, :ingredients, args: %{scope: :ingredient}))
+    # end
   end
 
   object :measure do
-    fiel(:id, non_null(:id))
+    field(:id, non_null(:id))
     field(:type, non_null(:string))
     field(:abbreviaton, non_null(:string))
     field(:description, non_null(:string))
@@ -139,15 +144,14 @@ defmodule FoodiesWeb.Schema.Schema do
   # Ingredients
 
   object :ingredient do
-    fiel(:id, non_null(:id))
-    fiel(:name, non_null(:string))
-    fiel(:description, non_null(:string))
-    fiel(:img_cover_url, non_null(:string))
-    # field :recipes, non_null(:recipes_ingredients), resolve: dataloader(Recipes)
-    field :recipes, list_of(:recipes_ingredients) do
-      arg(:limit, type: :integer, default_value: 3)
-      resolve(dataloader(Recipes, :recipes_ingredients, args: %{scope: :recipe}))
-    end
+    field(:id, non_null(:id))
+    field(:name, non_null(:string))
+    field(:description, non_null(:string))
+    field(:img_cover_url, :string)
+    # field :recipes, list_of(:recipes_ingredients) do
+    #   arg(:limit, type: :integer, default_value: 100)
+    #   resolve(dataloader(Recipes, :recipes_ingredients, args: %{scope: :recipe}))
+    # end
   end
 
   # Users

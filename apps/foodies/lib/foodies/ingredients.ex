@@ -137,7 +137,7 @@ defmodule Foodies.Ingredients do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
-  def query(Ingredient, %{limit: limit, scope: :recipe}) do
+  def query(Ingredient, %{limit: limit, scope: :ingredient}) do
     Ingredient
     # |> where(state: "reserved")
     # |> order_by(asc: :start_date)

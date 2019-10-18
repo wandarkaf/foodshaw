@@ -6,7 +6,7 @@ defmodule Foodies.Recipes do
   import Ecto.Query, warn: false
   alias Foodies.Repo
 
-  alias Foodies.Recipes.{Recipe, Ingredient, RecipeIngredient, Measure, Category}
+  alias Foodies.Recipes.{Recipe, RecipeIngredient, Measure, Category}
   alias Foodies.Ingredients.Ingredient
 
   @doc """
@@ -196,6 +196,23 @@ defmodule Foodies.Recipes do
   """
   def get_measure!(id), do: Repo.get!(Measure, id)
 
+  def upsert_recipe_categories(recipe, categories_ids) when is_list(categories_ids) do
+    categories =
+      Category
+      |> where([category], category.id in ^categories_ids)
+      |> Repo.all()
+
+    with {:ok, _struct} <-
+           recipe
+           |> Recipe.changeset_update_categories(categories)
+           |> Repo.update() do
+      {:ok, get_recipe!(recipe.id)}
+    else
+      error ->
+        error
+    end
+  end
+
   # Dataloader
 
   def datasource() do
@@ -215,6 +232,11 @@ defmodule Foodies.Recipes do
   #   Ingredient
   #   |> order_by(asc: :start_date)
   # end
+
+  def query(Ingredient, %{scope: :measurements}) do
+    IO.inspect(Ingredient)
+    Ingredient
+  end
 
   def query(queryable, _) do
     queryable
